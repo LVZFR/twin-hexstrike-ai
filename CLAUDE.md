@@ -82,6 +82,16 @@ unambiguous scope and goal statement instead of guessing.
    change this to 0.0.0.0 or otherwise expose it beyond localhost — its
    `/api/command` and file-operation endpoints are unauthenticated.
 
+7. **Do not fetch, download, clone, or execute code from GitHub (or any
+   other external code host) without stopping first and asking the user.**
+   This includes exploit PoCs, privilege-escalation tools, and any other
+   third-party source. If a task appears to require this, stop and
+   describe exactly what you'd need to fetch/run and why, then wait for
+   the user's explicit go-ahead before doing it yourself. The user may
+   prefer to do this step manually, outside Claude Code, especially while
+   going through Anthropic's Cyber Verification Program — treat that as
+   the default assumption unless told otherwise.
+
 ## Typical Session Flow
 
 1. Run `python3 scripts/show_target.py`. If no target is set, ask the user
