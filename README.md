@@ -237,6 +237,35 @@ Edit `~/.config/Claude/claude_desktop_config.json`:
 }
 ```
 
+### Claude Code CLI Integration
+
+For [Claude Code](https://docs.claude.com/en/docs/claude-code) (the terminal-based coding agent), use the `claude mcp add` command instead of editing a JSON config directly:
+
+```bash
+# Project-scoped (only active when running `claude` from inside hexstrike-ai/)
+claude mcp add hexstrike-ai \
+  /path/to/hexstrike-ai/.venv/bin/python \
+  /path/to/hexstrike-ai/hexstrike_mcp.py \
+  -- --server http://127.0.0.1:8888
+
+# User-scoped (available from any directory)
+claude mcp add hexstrike-ai --scope user \
+  /path/to/hexstrike-ai/.venv/bin/python \
+  /path/to/hexstrike-ai/hexstrike_mcp.py \
+  -- --server http://127.0.0.1:8888
+```
+
+Verify the connection:
+
+```bash
+claude mcp list
+# hexstrike-ai: ... - ✔ Connected
+```
+
+Then run `claude` from the project directory (or anywhere, if user-scoped) and interact normally. Since `hexstrike_mcp.py` is a Python entrypoint (not `npx`), point directly at your virtualenv's Python interpreter rather than a bare `python3`, so it uses the dependencies installed in `requirements.txt`.
+
+By default, Claude Code will prompt for approval before each tool call unless you explicitly allow specific tools — do not blanket-approve `hexstrike-ai` tools in an unattended/autonomous config, especially given the command-execution capability described in [Security Considerations](#security-considerations).
+
 ### VS Code Copilot Integration
 
 Configure VS Code settings in `.vscode/settings.json`:
@@ -648,6 +677,7 @@ python3 hexstrike_mcp.py --debug
 - AI agents can execute arbitrary security tools - ensure proper oversight
 - Monitor AI agent activities through the real-time dashboard
 - Consider implementing authentication for production deployments
+- The server honors `HEXSTRIKE_HOST` (default `127.0.0.1`) and `HEXSTRIKE_PORT` (default `8888`) environment variables — keep it bound to localhost and reach it via SSH tunnel or MCP stdio rather than exposing it on a LAN or public interface, since `/api/command` and the file-operation endpoints are unauthenticated
 
 ### Legal & Ethical Use
 
