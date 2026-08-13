@@ -93,6 +93,37 @@ unambiguous scope and goal statement instead of guessing.
 4. User decides next steps (deeper enumeration, manual investigation,
    attempting a specific exploit) and explicitly asks for it.
 
+## Automatic Findings Logging
+
+After every hexstrike-ai tool call that returns a notable result — an open
+port, a detected service/version, a discovered URL/endpoint, a
+vulnerability indicator, a credential, a flag, or any other concrete
+artifact — log it immediately with:
+
+```bash
+python3 scripts/set_notes.py add-finding "<concise, factual summary of what the tool actually returned>"
+```
+
+Rules for what counts as "notable" and how to phrase it:
+
+- Log the actual result, not your interpretation of what it might mean.
+  Good: `"nmap: 22/tcp open ssh OpenSSH 9.6p1, 80/tcp open http nginx 1.24.0"`
+  Bad:  `"the server looks vulnerable to something"`
+- One finding per tool call is usually enough — summarize concisely rather
+  than pasting raw multi-line tool output.
+- Skip logging when a tool call returns nothing new (e.g. a repeat scan
+  confirming an already-logged port) — don't spam duplicate entries.
+- Never log secrets, credentials, or flag contents in plaintext if the user
+  has asked you to keep them out of the log — ask if unsure, since this
+  file is stored on disk and may end up in version control history if the
+  user later chooses to remove it from `.gitignore`.
+- This logging is in addition to, not instead of, reporting the finding to
+  the user directly in your response.
+
+This keeps `.session-notes` (viewable via `show_notes.py` or the GUI's
+Findings Log) building itself as you work, instead of relying on the user
+to manually transcribe every result.
+
 ## Useful Commands
 
 ```bash

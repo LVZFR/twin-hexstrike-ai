@@ -51,8 +51,9 @@ class TargetForm(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title("HexStrike AI — Target & Objective")
-        self.geometry("640x560")
-        self.resizable(False, False)
+        self.geometry("680x680")
+        self.minsize(680, 560)
+        self.resizable(True, True)
 
         pad = {"padx": 10, "pady": 4}
 
@@ -88,19 +89,21 @@ class TargetForm(tk.Tk):
         self._finding_entry = tk.Entry(self, width=70)
         self._finding_entry.pack(fill="x", **pad)
 
-        tk.Label(self, text="Findings Log (read-only)", font=("", 11, "bold")).pack(
-            anchor="w", **pad
-        )
-        self._findings_box = scrolledtext.ScrolledText(
-            self, width=76, height=14, state="disabled"
-        )
-        self._findings_box.pack(fill="both", expand=True, **pad)
-
         btn_row = tk.Frame(self)
         btn_row.pack(fill="x", **pad)
-        tk.Button(btn_row, text="Submit", command=self.on_submit, width=15).pack(
-            side="left"
-        )
+        tk.Button(
+            btn_row,
+            text="Submit",
+            command=self.on_submit,
+            width=15,
+            state="normal",
+            bg="#2e7d32",
+            fg="white",
+            activebackground="#1b5e20",
+            activeforeground="white",
+            relief="raised",
+            font=("", 10, "bold"),
+        ).pack(side="left")
         tk.Button(
             btn_row, text="Refresh", command=self.load_current, width=15
         ).pack(side="left", padx=6)
@@ -110,6 +113,14 @@ class TargetForm(tk.Tk):
 
         self._status = tk.Label(self, text="", fg="green")
         self._status.pack(anchor="w", **pad)
+
+        tk.Label(self, text="Findings Log (read-only)", font=("", 11, "bold")).pack(
+            anchor="w", **pad
+        )
+        self._findings_box = scrolledtext.ScrolledText(
+            self, width=76, height=8, state="disabled"
+        )
+        self._findings_box.pack(fill="both", expand=True, **pad)
 
         self.load_current()
 
