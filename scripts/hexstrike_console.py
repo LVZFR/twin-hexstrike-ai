@@ -429,12 +429,18 @@ class HexStrikeConsole(tk.Tk):
         self._prompt_entry.delete(0, tk.END)
 
         full_prompt = (
+            f"Read CLAUDE.md in this project directory first, then run "
+            f"`python3 scripts/show_target.py` and "
+            f"`python3 scripts/show_notes.py` to confirm the current "
+            f"authorized target and objective before doing anything else. "
+            f"Follow every rule in CLAUDE.md, including the automatic "
+            f"findings-logging instructions and the scope boundary. "
             f"Current authorized target: {target.get('target_ip')} "
             f"(hostname: {target.get('hostname') or 'n/a'}, "
             f"machine: {target.get('machine_name') or 'n/a'}). "
             f"This is an HTB lab machine explicitly spawned by the account "
             f"owner for authorized practice. Stay within this target only. "
-            f"{instruction}"
+            f"Task: {instruction}"
         )
 
         self._log(f">>> {instruction}", "accent")
