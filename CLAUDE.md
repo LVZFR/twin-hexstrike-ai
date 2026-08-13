@@ -9,24 +9,43 @@ Scope is **not** hardcoded in this file. At the start of every session, run:
 
 ```bash
 python3 scripts/show_target.py
+python3 scripts/show_notes.py
 ```
 
-This prints the current target IP/hostname from `.current-target`, a small
-JSON file the user updates themselves (from their own HTB dashboard) via:
+`show_target.py` prints the current target IP/hostname from `.current-target`,
+a small JSON file the user updates themselves (from their own HTB dashboard)
+via:
 
 ```bash
 python3 scripts/set_target.py <target_ip> [hostname] [machine_name]
 ```
+
+`show_notes.py` prints the current **objective** (what the user is trying to
+achieve on that target — e.g. "get user.txt," "find the initial foothold")
+and a running findings log, from `.session-notes`, updated via:
+
+```bash
+python3 scripts/set_notes.py objective "<what you are trying to do>"
+python3 scripts/set_notes.py add-finding "<what a tool run revealed>"
+```
+
+These are two separate concerns: `.current-target` says WHERE Claude Code
+is allowed to act, `.session-notes` says WHAT the user is currently trying
+to accomplish there. Neither implies the other — always check both.
 
 If `show_target.py` prints `NO TARGET SET`, **stop and ask the user** to run
 `set_target.py` before touching any hexstrike-ai tool. Never infer, guess,
 or reuse a target from a previous session or from conversation memory —
 always re-check the file, since HTB machine IPs change on every respawn.
 
-Neither script talks to HTB's API. They only record what the user tells
-you, from their own dashboard. This is not proof of authorization — it is
-a deliberate, explicit record so Claude Code has one unambiguous scope
-statement instead of guessing.
+If `show_notes.py` prints `NO OBJECTIVE SET`, ask the user what they're
+trying to achieve before running exploratory tools, rather than assuming
+"scan everything" is the goal.
+
+None of these scripts talk to HTB's API. They only record what the user
+tells you, from their own dashboard/observations. This is not proof of
+authorization — it is a deliberate, explicit record so Claude Code has one
+unambiguous scope and goal statement instead of guessing.
 
 ## Standing Rules
 
@@ -77,11 +96,16 @@ statement instead of guessing.
 ## Useful Commands
 
 ```bash
-# Show current authorized target
+# Show current authorized target and objective
 python3 scripts/show_target.py
+python3 scripts/show_notes.py
 
 # Update target (run this yourself each time you spawn/respawn a machine)
 python3 scripts/set_target.py <ip> [hostname] [machine_name]
+
+# Set/update the current objective and log findings as you go
+python3 scripts/set_notes.py objective "<what you are trying to do>"
+python3 scripts/set_notes.py add-finding "<what a tool run revealed>"
 
 # Check hexstrike-ai server health and detected tools
 curl -sS http://127.0.0.1:8888/health
