@@ -275,7 +275,50 @@ class HexStrikeConsole(tk.Tk):
             btn_row, "RELOAD", self.on_reload, bg="#12232c"
         ).pack(side="left", padx=6)
 
-        # --- console output ---
+        # --- footer (packed to bottom FIRST so it's never pushed off) ---
+        footer = tk.Frame(self, bg=BG)
+        footer.pack(side="bottom", fill="x", padx=14, pady=(0, 10))
+        tk.Label(
+            footer,
+            text=(
+                f"Auto-approved (read-only recon): "
+                f"{', '.join(AUTO_APPROVED_TOOLS[:6])}, "
+                f"+{len(AUTO_APPROVED_TOOLS) - 6} more. "
+                f"Anything else prompts inside a manual `claude` session."
+            ),
+            bg=BG,
+            fg=FG_DIM,
+            font=("Courier New", 8),
+            wraplength=940,
+            justify="left",
+        ).pack(anchor="w")
+
+        # --- prompt input (packed to bottom SECOND, sits above footer) ---
+        prompt_frame = tk.Frame(self, bg=BG)
+        prompt_frame.pack(side="bottom", fill="x", padx=14, pady=(0, 6))
+        tk.Label(
+            prompt_frame, text=">>>", bg=BG, fg=ACCENT, font=FONT_MONO_BOLD
+        ).pack(side="left")
+        self._prompt_entry = tk.Entry(
+            prompt_frame,
+            bg="#06110a",
+            fg=FG,
+            insertbackground=FG,
+            font=FONT_MONO,
+            relief="flat",
+            highlightthickness=1,
+            highlightbackground=FG_DIM,
+            highlightcolor=ACCENT,
+        )
+        self._prompt_entry.pack(side="left", fill="x", expand=True, padx=8)
+        self._prompt_entry.bind("<Return>", lambda _e: self.on_send())
+
+        self._send_btn = self._make_button(
+            prompt_frame, "SEND ▶", self.on_send, bg="#0d3d21", width=10
+        )
+        self._send_btn.pack(side="left")
+
+        # --- console output (packed last, fills all remaining space) ---
         console_frame = tk.LabelFrame(
             self,
             text=" CLAUDE CODE OUTPUT ",
@@ -301,49 +344,6 @@ class HexStrikeConsole(tk.Tk):
         self._console.tag_configure("warn", foreground=WARN)
         self._console.tag_configure("accent", foreground=ACCENT)
         self._console.tag_configure("dim", foreground=FG_DIM)
-
-        # --- prompt input ---
-        prompt_frame = tk.Frame(self, bg=BG)
-        prompt_frame.pack(fill="x", padx=14, pady=(0, 6))
-        tk.Label(
-            prompt_frame, text=">>>", bg=BG, fg=ACCENT, font=FONT_MONO_BOLD
-        ).pack(side="left")
-        self._prompt_entry = tk.Entry(
-            prompt_frame,
-            bg="#06110a",
-            fg=FG,
-            insertbackground=FG,
-            font=FONT_MONO,
-            relief="flat",
-            highlightthickness=1,
-            highlightbackground=FG_DIM,
-            highlightcolor=ACCENT,
-        )
-        self._prompt_entry.pack(side="left", fill="x", expand=True, padx=8)
-        self._prompt_entry.bind("<Return>", lambda _e: self.on_send())
-
-        self._send_btn = self._make_button(
-            prompt_frame, "SEND ▶", self.on_send, bg="#0d3d21", width=10
-        )
-        self._send_btn.pack(side="left")
-
-        # --- footer / auto-approved tools note ---
-        footer = tk.Frame(self, bg=BG)
-        footer.pack(fill="x", padx=14, pady=(0, 12))
-        tk.Label(
-            footer,
-            text=(
-                f"Auto-approved (read-only recon): "
-                f"{', '.join(AUTO_APPROVED_TOOLS[:6])}, "
-                f"+{len(AUTO_APPROVED_TOOLS) - 6} more. "
-                f"Anything else prompts inside a manual `claude` session."
-            ),
-            bg=BG,
-            fg=FG_DIM,
-            font=("Courier New", 8),
-            wraplength=940,
-            justify="left",
-        ).pack(anchor="w")
 
     def _make_button(self, parent, text, command, bg="#12232c", width=14):
         return tk.Button(
@@ -451,11 +451,11 @@ class HexStrikeConsole(tk.Tk):
         cmd = [
             self._claude_bin,
             "-p",
+            prompt,
             "--permission-mode",
             "acceptEdits",
             "--allowedTools",
             *allowed,
-            prompt,
         ]
 
         self._send_btn.configure(state="disabled", text="RUNNING…")
